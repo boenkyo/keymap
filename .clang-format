@@ -1,5 +1,5 @@
 BasedOnStyle: Google
-Language: Cpp
+Language: C
 
 # Lines
 ColumnLimit: 80
@@ -29,13 +29,10 @@ AlignTrailingComments: true
 AlignEscapedNewlines: Right
 PointerAlignment: Left
 
-# Classes
-AccessModifierOffset: -3
-
 # Indentation
-TabWidth: 3
-IndentWidth: 3
-ContinuationIndentWidth: 3
+TabWidth: 4
+IndentWidth: 4
+ContinuationIndentWidth: 4
 UseTab: ForIndentation
 IndentCaseLabels: false
 IndentPPDirectives: AfterHash
