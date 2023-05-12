@@ -13,5 +13,4 @@ flash:
 	cd qmk_firmware; qmk flash -kb $(KEYBOARD) -km $(KEYMAP)
 
 clean:
-	rm -rf qmk_firmware/keyboards/$(KEYBOARD)/keymaps$(KEYMAP)
 	rm -rf qmk_firmware/
