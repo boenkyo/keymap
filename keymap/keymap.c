@@ -1,3 +1,4 @@
+#include "keycodes.h"
 #include QMK_KEYBOARD_H
 #include "features/achordion.h"
 #include "features/custom_shift_keys.h"
@@ -12,6 +13,7 @@ enum layers {
   NAV,
   OPS,
   MED,
+  FPS,
   STE,
 };
 
@@ -24,14 +26,14 @@ enum custom_keycodes {
 };
 
 // Home row mods
-#define HRM_I LCTL_T(KC_I)
-#define HRM_S LALT_T(KC_S)
-#define HRM_R LT(NUM, KC_R)
+#define HRM_A LCTL_T(KC_A)
+#define HRM_R LALT_T(KC_R)
+#define HRM_S LT(NUM, KC_S)
 #define HRM_T LSFT_T(KC_T)
 
 #define HRM_N RSFT_T(KC_N)
 #define HRM_E LT(OPS, KC_E)
-#define HRM_A RALT_T(KC_A)
+#define HRM_I RALT_T(KC_I)
 #define HRM_O RCTL_T(KC_O)
 
 #define MY_D LT(MED, KC_D)
@@ -51,14 +53,15 @@ enum custom_keycodes {
 // clang-format off
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     /*
-     *      y c l m k    z f u , '
-     *      i s r t g    p n e a o
-     *      q v w d j    b h : . x
+     *      q w f p b    j l u y '
+     *      a r s t g    m n e i o
+     *      z x c d v    k h , . :
      */
+  
     [DEF] = LAYOUT(
-           KC_Y,    KC_C,    KC_L,    KC_M,     KC_K,       KC_Z,       KC_F,    KC_U,   KC_COMM, KC_QUOT,
-          HRM_I,   HRM_S,   HRM_R,   HRM_T,     KC_G,       KC_P,      HRM_N,   HRM_E,   HRM_A,   HRM_O,
-           KC_Q,    KC_V,    KC_W,    MY_D,     KC_J,       KC_B,       KC_H,   KC_COLN, KC_DOT,  KC_X,
+           KC_Q,    KC_W,    KC_F,    KC_P,     KC_B,       KC_J,       KC_L,    KC_U,   KC_Y, KC_QUOT,
+          HRM_A,   HRM_R,   HRM_S,   HRM_T,     KC_G,       KC_M,      HRM_N,   HRM_E,   HRM_I,   HRM_O,
+           KC_Z,    KC_X,    KC_C,    MY_D,     KC_V,       KC_K,       KC_H,   KC_COMM, KC_DOT,  KC_COLN,
                                     TMB_RPT,  TMB_TAB,      TMB_ENT, TMB_SPC
     ),
     
@@ -108,6 +111,12 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                    _______,  _______,       _______, KC_MPLY
     ),
 
+    [FPS] = LAYOUT(
+         KC_ESC,    KC_Q,    KC_X,    KC_E,  _______,       _______, _______, _______, _______, _______,
+        KC_LSFT,    KC_A,    KC_W,    KC_D,  _______,       _______, _______, _______, _______, _______,
+        KC_LCTL,    KC_Z,    KC_S,    KC_C,  _______,       _______, _______, _______, _______, _______,
+                                    KC_SPC,   KC_TAB,       _______, _______
+    ),
 
     [STE] = LAYOUT(
         _______, _______, _______, _______,  _______,       _______, _______, _______, _______, _______,
@@ -209,7 +218,7 @@ bool achordion_chord(uint16_t tap_hold_keycode, keyrecord_t *tap_hold_record,
     return true;
 
   // Allow ctrl + tab
-  case HRM_I:
+  case HRM_A:
     if (other_keycode == TMB_TAB)
       return true;
   }
