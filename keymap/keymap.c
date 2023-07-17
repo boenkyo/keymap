@@ -1,8 +1,8 @@
 #include "keycodes.h"
+#include "quantum_keycodes.h"
 #include QMK_KEYBOARD_H
 #include "features/achordion.h"
 #include "features/custom_shift_keys.h"
-#include "features/repeat_key.h"
 #include "quantum.h"
 // #include "keymap_steno.h"
 
@@ -13,14 +13,11 @@ enum layers {
   NAV,
   OPS,
   MED,
-  FPS,
-  STE,
+  GAM,
 };
 
 enum custom_keycodes {
-  REPEAT = SAFE_RANGE,
-  ALTREP,
-  DIRUP,
+  DIRUP = SAFE_RANGE,
   NEQ,
   COLNEQ,
 };
@@ -42,7 +39,7 @@ enum custom_keycodes {
 #define TMB_TAB LGUI_T(KC_TAB)
 #define TMB_ENT RGUI_T(KC_ENT)
 #define TMB_SPC LT(SYM, KC_SPC)
-#define TMB_RPT LT(NAV, REPEAT)
+#define TMB_RPT LT(NAV, QK_REP)
 
 // Nav
 #define TAB_NXT LCTL(KC_TAB)
@@ -111,26 +108,12 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                    _______,  _______,       _______, KC_MPLY
     ),
 
-    [FPS] = LAYOUT(
+    [GAM] = LAYOUT(
          KC_ESC,    KC_Q,    KC_X,    KC_E,  _______,       _______, _______, _______, _______, _______,
         KC_LSFT,    KC_A,    KC_W,    KC_D,  _______,       _______, _______, _______, _______, _______,
         KC_LCTL,    KC_Z,    KC_S,    KC_C,  _______,       _______, _______, _______, _______, _______,
                                     KC_SPC,   KC_TAB,       _______, _______
     ),
-
-    [STE] = LAYOUT(
-        _______, _______, _______, _______,  _______,       _______, _______, _______, _______, _______,
-        KC_LSFT,   KC_I,    KC_A,    KC_E,  KC_BSPC,       KC_BSPC,    KC_E,    KC_A,    KC_I, KC_LSFT,
-         KC_DOT,   KC_S,    KC_T,    KC_N,  _______,       _______,    KC_N,    KC_T,    KC_S, KC_DOT,
-                                    KC_SPC,  _______,       _______,    KC_SPC
-    ),
-
-    // [STE] = LAYOUT(
-    //      STN_N1,  STN_N2,  STN_N3, STN_N4,   STN_N5,        STN_N6,   STN_N7,  STN_N8,  STN_N9,  STN_NA,
-    //      STN_S1,  STN_TL,  STN_PL, STN_HL,   STN_ST1,       STN_DR,   STN_TR,  STN_LR,  STN_PR,  STN_FR,
-    //      STN_S2,  STN_KL,  STN_WL, STN_RL,   STN_ST2,       STN_ZR,   STN_SR,  STN_GR,  STN_BR,  STN_RR,
-    //                                 STN_A,     STN_O,        STN_E,   STN_U
-    // ),
 
     // [] = LAYOUT(
     //     _______, _______, _______, _______,  _______,       _______, _______, _______, _______, _______,
@@ -141,7 +124,6 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 };
 // clang-format on
 
-// Custom Shift Keys {{{
 const custom_shift_key_t custom_shift_keys[] = {
     {KC_DOT, KC_QUES},
     {KC_COMM, KC_EXLM},
@@ -149,20 +131,14 @@ const custom_shift_key_t custom_shift_keys[] = {
 };
 uint8_t NUM_CUSTOM_SHIFT_KEYS =
     sizeof(custom_shift_keys) / sizeof(custom_shift_key_t);
-// }}}
 
-// Combos {{{
 #include "g/keymap_combo.h"
 
 bool combo_should_trigger(uint16_t combo_index, combo_t *combo,
                           uint16_t keycode, keyrecord_t *record) {
-  if (layer_state_is(STE) && combo_index != YKZQUOT_STENO)
-    return false;
-
   return true;
 }
-// }}}
-// User functions {{{
+
 void keyboard_pre_init_user(void) {
   // Set our LED pin as output
   setPinOutput(24);
@@ -176,13 +152,23 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     return false;
   if (!process_custom_shift_keys(keycode, record))
     return false;
-  if (keycode == TMB_RPT && !record->tap.count) {
-    return true;
-  }
-  if (!process_repeat_key_with_alt(keycode, record, TMB_RPT, ALTREP))
-    return false;
 
   switch (keycode) {
+  case TMB_RPT:
+    // Hack to get LT working with repeat key
+    if (record->event.pressed) {
+      if (record->tap.count > 0) {
+        keyrecord_t press;
+        press.event.pressed = true;
+        process_repeat_key(QK_REP, &press);
+        keyrecord_t release;
+        release.event.pressed = false;
+        process_repeat_key(QK_REP, &release);
+        return true;
+      }
+    }
+    break;
+
   case DIRUP:
     if (record->event.pressed) {
       SEND_STRING("../");
@@ -206,9 +192,17 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   return true;
 }
 
+bool remember_last_key_user(uint16_t keycode, keyrecord_t *record,
+                            uint8_t *remembered_mods) {
+  switch (keycode) {
+  case TMB_RPT:
+    return false;
+  }
+  return true;
+}
+
 void matrix_scan_user(void) { achordion_task(); }
-// }}}
-// Achordion {{{
+
 bool achordion_chord(uint16_t tap_hold_keycode, keyrecord_t *tap_hold_record,
                      uint16_t other_keycode, keyrecord_t *other_record) {
   switch (tap_hold_keycode) {
@@ -237,6 +231,3 @@ bool achordion_eager_mod(uint8_t mod) {
     return false;
   }
 }
-// }}}
-
-// vim: set foldmethod=marker :
