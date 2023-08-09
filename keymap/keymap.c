@@ -1,13 +1,14 @@
-#include "keycodes.h"
-#include "quantum_keycodes.h"
 #include QMK_KEYBOARD_H
+#include "action_layer.h"
 #include "features/achordion.h"
 #include "features/custom_shift_keys.h"
+#include "features/repeat_key.h"
+#include "keycodes.h"
 #include "quantum.h"
-// #include "keymap_steno.h"
 
 enum layers {
   DEF,
+  SWE,
   SYM,
   NUM,
   NAV,
@@ -20,6 +21,8 @@ enum custom_keycodes {
   DIRUP = SAFE_RANGE,
   NEQ,
   COLNEQ,
+  REPEAT,
+  ALT_REP,
 };
 
 // Home row mods
@@ -39,7 +42,7 @@ enum custom_keycodes {
 #define TMB_TAB LGUI_T(KC_TAB)
 #define TMB_ENT RGUI_T(KC_ENT)
 #define TMB_SPC LT(SYM, KC_SPC)
-#define TMB_RPT LT(NAV, QK_REP)
+#define NAV_REP LT(NAV, REPEAT)
 
 // Nav
 #define TAB_NXT LCTL(KC_TAB)
@@ -56,10 +59,17 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      */
   
     [DEF] = LAYOUT(
-           KC_Q,    KC_W,    KC_F,    KC_P,     KC_B,       KC_J,       KC_L,    KC_U,   KC_Y, KC_QUOT,
-          HRM_A,   HRM_R,   HRM_S,   HRM_T,     KC_G,       KC_M,      HRM_N,   HRM_E,   HRM_I,   HRM_O,
-           KC_Z,    KC_X,    KC_C,    MY_D,     KC_V,       KC_K,       KC_H,   KC_COMM, KC_DOT,  KC_COLN,
-                                    TMB_RPT,  TMB_TAB,      TMB_ENT, TMB_SPC
+        KC_Q,       KC_W,    KC_F,    KC_P,     KC_B,       KC_J,    KC_L,    KC_U,    KC_Y,    KC_QUOT,
+        HRM_A,     HRM_R,   HRM_S,   HRM_T,     KC_G,       KC_M,    HRM_N,   HRM_E,   HRM_I,   HRM_O,
+        KC_Z,       KC_X,    KC_C,    MY_D,     KC_V,       KC_K,    KC_H,    KC_COMM, KC_DOT,  KC_COLN,
+                                   NAV_REP,  TMB_TAB,      TMB_ENT,  TMB_SPC
+    ),
+    
+    [SWE] = LAYOUT(
+        _______, _______, _______, _______,  _______,       _______, _______, _______, _______, _______,
+        _______, _______, _______, _______,  _______,       _______, _______, _______, _______, _______,
+        _______, _______, _______, _______,  _______,       _______, _______, _______, _______, _______,
+                                   _______,  _______,       _______, _______
     ),
     
     /*
@@ -68,10 +78,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      *      ~ @ [ ] 
      */
     [SYM] = LAYOUT(
-        KC_GRV,   KC_DLR, KC_LCBR, KC_RCBR,  _______,        _______, _______, _______, _______, _______,
-        KC_HASH, KC_UNDS, KC_LPRN, KC_RPRN,  _______,      _______, _______, _______, _______, _______,
-        KC_TILD,   KC_AT, KC_LBRC, KC_RBRC,  _______,       _______, _______, _______, _______, _______,
-                                   _______,  _______,      _______, _______
+        KC_GRV,  KC_DLR,  KC_LCBR, KC_RCBR,  _______,       _______, _______, _______, _______, _______,
+        KC_HASH, KC_UNDS, KC_LPRN, KC_RPRN,  _______,       _______, _______, _______, _______, _______,
+        KC_TILD, KC_AT,   KC_LBRC, KC_RBRC,  _______,       _______, _______, _______, _______, _______,
+                                   _______,  _______,       _______, _______
     ),
 
     /*
@@ -81,9 +91,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      */
 
     [OPS] = LAYOUT(
-        KC_PERC, KC_LABK, KC_RABK,     NEQ,   KC_CIRC,       _______, _______, _______, _______, _______,
-        KC_PIPE, KC_MINS, KC_PLUS,  KC_EQL,   COLNEQ,       _______, _______, _______, _______, _______,
-        KC_AMPR, KC_SLSH, KC_ASTR, KC_BSLS,    DIRUP,       _______, _______, _______, _______, _______,
+        KC_PERC, KC_LABK, KC_RABK, NEQ,      KC_CIRC,       _______, _______, _______, _______, _______,
+        KC_PIPE, KC_MINS, KC_PLUS, KC_EQL,   COLNEQ,        _______, _______, _______, _______, _______,
+        KC_AMPR, KC_SLSH, KC_ASTR, KC_BSLS,  DIRUP,         _______, _______, _______, _______, _______,
                                    _______,  _______,       _______, _______
     ),
 
@@ -152,23 +162,14 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     return false;
   if (!process_custom_shift_keys(keycode, record))
     return false;
+  if (keycode == NAV_REP && !record->tap.count) {
+    return true;
+  }
+  if (!process_repeat_key_with_alt(keycode, record, NAV_REP, ALT_REP)) {
+    return false;
+  }
 
   switch (keycode) {
-  case TMB_RPT:
-    // Hack to get LT working with repeat key
-    if (record->event.pressed) {
-      if (record->tap.count > 0) {
-        keyrecord_t press;
-        press.event.pressed = true;
-        process_repeat_key(QK_REP, &press);
-        keyrecord_t release;
-        release.event.pressed = false;
-        process_repeat_key(QK_REP, &release);
-        return true;
-      }
-    }
-    break;
-
   case DIRUP:
     if (record->event.pressed) {
       SEND_STRING("../");
@@ -189,15 +190,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     break;
   }
 
-  return true;
-}
-
-bool remember_last_key_user(uint16_t keycode, keyrecord_t *record,
-                            uint8_t *remembered_mods) {
-  switch (keycode) {
-  case TMB_RPT:
-    return false;
-  }
   return true;
 }
 

@@ -1,0 +1,21 @@
+layout:
+  qmk_keyboard: corne_rotated
+  qmk_layout: LAYOUT_split_3x6_3
+layers:
+  ENG:
+    - [Del, Q, W, F, P, B, J, L, U, Y, "'", ""]
+    - [Esc, {t: A, h: Alt}, {t: R, h: Win}, S, {t: T, h: Shift}, G, M, {t: N, h: Shift}, E, {t: I, h: Win}, {t: O, h: Alt}, Ä]
+    - ["", Z, X, C, D, V, K, H, {t: ",", s: "!"}, {t: ".", s: "?"}, {t: ":", s: ";"}, ""]
+    - ["", Repeat, Tab, Enter]
+    - {h: SYM,   t: $$mdi:keyboard-space$$}
+    - ""
+  NUMBER:
+    - ["Tab", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "Bspace"]
+    - ["BT CLR", "BT 1", "BT 2", "BT 3", "BT 4", "BT 5", "Left", "Down", "Up", "Right", null, null]
+    - ["LShft", null, null, null, null, null, null, null, null, null, null, null]
+    - ["LGui", {type: held}, "Space", "Enter", null, "RAlt"]
+  SYMBOL:
+    - ["Tab", "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "Bspace"]
+    - ["LCtrl", null, null, null, null, null, "-", "=", "[", "]", "\\", "`"]
+    - ["LShft", null, null, null, null, null, "_", "+", "{", "}", "|", "~"]
+    - ["LGui", null, "Space", "Enter", {type: held}, "RAlt"]
