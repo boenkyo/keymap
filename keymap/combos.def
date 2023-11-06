@@ -10,3 +10,7 @@ SUBS(O_OUGH, "ough", NAV_REP, HRM_O)
 SUBS(G_ING, "ing", NAV_REP, KC_G)
 SUBS(Q_QU, "qu", NAV_REP, KC_Q)
 
+// Swedish
+SUBS(CB_Q, "q", U_AO, KC_W)
+SUBS(CB_Z, "z", U_AE, KC_X)
+SUBS(CB_QUOT, "'", U_OE, KC_Y)

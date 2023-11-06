@@ -2,9 +2,32 @@
 #include "action_layer.h"
 #include "features/achordion.h"
 #include "features/custom_shift_keys.h"
-#include "features/repeat_key.h"
 #include "keycodes.h"
 #include "quantum.h"
+
+enum unicode_names {
+  U_AE_LOWER,
+  U_AE_UPPER,
+  U_OE_LOWER,
+  U_OE_UPPER,
+  U_AO_LOWER,
+  U_AO_UPPER,
+};
+
+#define U_AE XP(U_AE_LOWER, U_AE_UPPER)
+#define U_OE XP(U_OE_LOWER, U_OE_UPPER)
+#define U_AO XP(U_AO_LOWER, U_AO_UPPER)
+
+// Code lookup tool
+// https://unicode.emnudge.dev/
+const uint32_t unicode_map[] PROGMEM = {
+    [U_AE_LOWER] = 0x00e4, // ä
+    [U_AE_UPPER] = 0x00c4, // Ä
+    [U_OE_LOWER] = 0x00f6, // ö
+    [U_OE_UPPER] = 0x00d6, // Ö
+    [U_AO_LOWER] = 0x00e5, // å
+    [U_AO_UPPER] = 0x00c5, // Å
+};
 
 enum layers {
   DEF,
@@ -21,8 +44,6 @@ enum custom_keycodes {
   DIRUP = SAFE_RANGE,
   NEQ,
   COLNEQ,
-  REPEAT,
-  ALT_REP,
 };
 
 // Home row mods
@@ -42,7 +63,7 @@ enum custom_keycodes {
 #define TMB_TAB LGUI_T(KC_TAB)
 #define TMB_ENT RGUI_T(KC_ENT)
 #define TMB_SPC LT(SYM, KC_SPC)
-#define NAV_REP LT(NAV, REPEAT)
+#define NAV_REP LT(NAV, KC_BSPC)
 
 // Nav
 #define TAB_NXT LCTL(KC_TAB)
@@ -59,16 +80,21 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      */
   
     [DEF] = LAYOUT(
-        KC_Q,       KC_W,    KC_F,    KC_P,     KC_B,       KC_J,    KC_L,    KC_U,    KC_Y,    KC_QUOT,
-        HRM_A,     HRM_R,   HRM_S,   HRM_T,     KC_G,       KC_M,    HRM_N,   HRM_E,   HRM_I,   HRM_O,
-        KC_Z,       KC_X,    KC_C,    MY_D,     KC_V,       KC_K,    KC_H,    KC_COMM, KC_DOT,  KC_COLN,
-                                   NAV_REP,  TMB_TAB,      TMB_ENT,  TMB_SPC
+        KC_Q,       KC_W,    KC_F,    KC_P,  KC_B,         KC_J,    KC_L,    KC_U,    KC_Y,    KC_QUOT,
+        HRM_A,     HRM_R,   HRM_S,   HRM_T,  KC_G,         KC_M,    HRM_N,   HRM_E,   HRM_I,   HRM_O,
+        KC_Z,       KC_X,    KC_C,    MY_D,  KC_V,         KC_K,    KC_H,    KC_COMM, KC_DOT,  KC_COLN,
+                                   NAV_REP,  TMB_TAB,      TMB_ENT, TMB_SPC
     ),
     
+    /*
+     *      å w f p b    j l u y ö
+     *      a r s t g    m n e i o
+     *      ä x c d v    k h , . :
+     */
     [SWE] = LAYOUT(
+        U_AO,    _______, _______, _______,  _______,       _______, _______, _______, _______, U_OE,
         _______, _______, _______, _______,  _______,       _______, _______, _______, _______, _______,
-        _______, _______, _______, _______,  _______,       _______, _______, _______, _______, _______,
-        _______, _______, _______, _______,  _______,       _______, _______, _______, _______, _______,
+        U_AE,    _______, _______, _______,  _______,       _______, _______, _______, _______, _______,
                                    _______,  _______,       _______, _______
     ),
     
@@ -101,14 +127,14 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______, _______, _______, _______,  _______,       _______,    KC_7,    KC_8,    KC_9, _______,
         _______, _______, _______, _______,  _______,       _______,    KC_1,    KC_2,    KC_3,  KC_DOT,
         _______, _______, _______, _______,  _______,       _______,    KC_4,    KC_5,    KC_6, _______,
-                                   _______,  _______,       _______, KC_0
+                                   _______,  _______,       _______,    KC_0
     ),
 
     [NAV] = LAYOUT(
         _______, _______, _______, _______,  _______,       _______, _______, _______, _______, _______,
-        _______, _______, _______, _______,  _______,       _______, KC_LEFT, KC_DOWN,   KC_UP, KC_RIGHT,
+        _______, _______, _______, _______,  _______,       TG(SWE), KC_LEFT, KC_DOWN,   KC_UP, KC_RIGHT,
         _______, _______, _______, _______,  _______,       _______, TAB_PRV, HST_BCK, HST_FWD, TAB_NXT,
-                                   _______,  _______,       _______, KC_BSPC
+                                   _______,  _______,       _______, _______
     ),
 
     [MED] = LAYOUT(
@@ -162,12 +188,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     return false;
   if (!process_custom_shift_keys(keycode, record))
     return false;
-  if (keycode == NAV_REP && !record->tap.count) {
-    return true;
-  }
-  if (!process_repeat_key_with_alt(keycode, record, NAV_REP, ALT_REP)) {
-    return false;
-  }
 
   switch (keycode) {
   case DIRUP:
