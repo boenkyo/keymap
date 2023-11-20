@@ -5,6 +5,7 @@ enum layers {
   SWE, // swedish
   SYM, // symbols
   NUM, // numbers
+  FUN, // function keys
   NAV, // navigation
   OPS, // operators
   MED, // media controls

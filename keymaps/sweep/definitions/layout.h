@@ -2,6 +2,8 @@
 
 #include "boenkyo.h"
 #include "keycodes.h"
+#include "layers.h"
+#include "quantum_keycodes.h"
 
 // clang-format off
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -14,7 +16,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [DEF] = LAYOUT(
         KC_Q,       KC_W,    KC_F,    KC_P,  KC_B,         KC_J,    KC_L,    KC_U,    KC_Y,    KC_QUOT,
         HRM_A,     HRM_R,   HRM_S,   HRM_T,  KC_G,         KC_M,    HRM_N,   HRM_E,   HRM_I,   HRM_O,
-        KC_Z,       KC_X,    KC_C,    MY_D,  KC_V,         KC_K,    KC_H,    KC_COMM, KC_DOT,  KC_COLN,
+        KC_Z,       KC_X,    MY_C,    MY_D,  KC_V,         KC_K,    KC_H,    KC_COMM, KC_DOT,  KC_COLN,
                                    NAV_REP,  TMB_TAB,      TMB_ENT, TMB_SPC
     ),
     
@@ -62,6 +64,13 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                    _______,  _______,       _______,    KC_0
     ),
 
+    [FUN] = LAYOUT(
+        _______, _______, _______, _______,  _______,       _______,   KC_F7,   KC_F8,   KC_F9,  KC_F12,
+        _______, _______, _______, _______,  _______,       _______,   KC_F1,   KC_F2,   KC_F3,  KC_F11,
+        _______, _______, _______, _______,  _______,       _______,   KC_F4,   KC_F5,   KC_F6,  KC_F10,
+                                   _______,  _______,       _______, _______
+    ),
+    
     [NAV] = LAYOUT(
         _______, _______, _______, _______,  _______,       _______, _______, _______, _______, _______,
         _______, _______, _______, _______,  _______,       TG(SWE), KC_LEFT, KC_DOWN,   KC_UP, KC_RIGHT,

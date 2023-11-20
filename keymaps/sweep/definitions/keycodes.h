@@ -21,6 +21,7 @@ enum custom_keycodes {
 #define HRM_I RALT_T(KC_I)
 #define HRM_O RGUI_T(KC_O)
 #define MY_D LT(MED, KC_D)
+#define MY_C LT(FUN, KC_C)
 
 // Thumb cluster
 #define TMB_TAB LCTL_T(KC_TAB)
