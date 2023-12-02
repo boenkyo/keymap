@@ -1,6 +1,7 @@
 #include "boenkyo.h"
 
 #include "definitions/layout.h"
+#include "timer.h"
 
 const custom_shift_key_t custom_shift_keys[] = {
     {KC_DOT, KC_QUES},
@@ -70,6 +71,10 @@ bool achordion_chord(uint16_t tap_hold_keycode, keyrecord_t *tap_hold_record,
     if (other_keycode == TMB_TAB)
       return true;
   }
+
+  // if (other_record->event.key.row % (MATRIX_ROWS / 2) == 3) {
+  //   return true;
+  // }
 
   return achordion_opposite_hands(tap_hold_record, other_record);
 }

@@ -10,4 +10,6 @@ enum layers {
   OPS, // operators
   MED, // media controls
   GAM, // gaming
+  OHL, // One-handed left
+  OHR, // One-handed right
 };
