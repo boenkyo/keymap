@@ -14,6 +14,9 @@ init:
 	# Compilation db
 	cd qmk_firmware; qmk generate-compilation-database -kb $(KB_BASE)/$(KB) -km $(USERNAME)
 
+compile:
+	cd qmk_firmware; qmk compile -kb $(KB_BASE)/$(KB) -km $(USERNAME) 
+
 flash:
 	cd qmk_firmware; qmk flash -kb $(KB_BASE)/$(KB) -km $(USERNAME)
 

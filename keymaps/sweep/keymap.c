@@ -1,5 +1,6 @@
 #include "boenkyo.h"
 
+#include "definitions/keycodes.h"
 #include "definitions/layout.h"
 #include "timer.h"
 
@@ -64,10 +65,12 @@ bool achordion_chord(uint16_t tap_hold_keycode, keyrecord_t *tap_hold_record,
   // Allow same hand shortcuts with thumbs
   case TMB_TAB:
   case TMB_ENT:
+  case TMB_SPC:
+  case NAV_REP:
     return true;
 
-  // Allow ctrl + tab
-  case HRM_A:
+  // Allow alt + tab
+  case HRM_R:
     if (other_keycode == TMB_TAB)
       return true;
   }
@@ -75,7 +78,6 @@ bool achordion_chord(uint16_t tap_hold_keycode, keyrecord_t *tap_hold_record,
   // if (other_record->event.key.row % (MATRIX_ROWS / 2) == 3) {
   //   return true;
   // }
-
   return achordion_opposite_hands(tap_hold_record, other_record);
 }
 
@@ -83,10 +85,12 @@ bool achordion_eager_mod(uint8_t mod) {
   switch (mod) {
   case MOD_LSFT:
   case MOD_RSFT:
-  case MOD_LGUI:
-  case MOD_RGUI:
+  case MOD_LCTL:
+  case MOD_RCTL:
     return true;
   default:
     return false;
   }
 }
+
+uint16_t achordion_timeout(uint16_t tap_hold_keycode) { return 500; }
